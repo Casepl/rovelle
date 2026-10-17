@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Configure and rebuild Rovelle while hiding the local checkout path.
+
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+project_dir=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+cd "$project_dir"
+
+"$script_dir/stream-cmake" -S . -B build
+"$script_dir/stream-cmake" --build build

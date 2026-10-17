@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Run CMake without exposing the local username or checkout location in output.
+# The wrapped command keeps CMake's original exit status.
+
+set -u
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+project_dir=$(CDPATH= cd -- "$script_dir/.." && pwd)
+stdout_file=$(mktemp "${TMPDIR:-/tmp}/rovelle-cmake-stdout.XXXXXX") || exit 1
+stderr_file=$(mktemp "${TMPDIR:-/tmp}/rovelle-cmake-stderr.XXXXXX") || {
+    rm -f "$stdout_file"
+    exit 1
+}
+
+cleanup()
+{
+    rm -f "$stdout_file" "$stderr_file"
+}
+
+redact_paths()
+{
+    sed \
+        -e "s|$project_dir|.|g" \
+        -e "s|$HOME|~|g"
+}
+
+trap cleanup EXIT HUP INT TERM
+
+cmake "$@" >"$stdout_file" 2>"$stderr_file"
+status=$?
+
+redact_paths <"$stdout_file"
+redact_paths <"$stderr_file" >&2
+
+exit "$status"

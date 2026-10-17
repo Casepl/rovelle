@@ -40,6 +40,11 @@ if(BUILD_TESTING)
         COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_help_smoke.sh
                    $<TARGET_FILE:rovelle>
     )
+    add_test(
+        NAME cas_smoke
+        COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/cas_smoke.sh
+                   $<TARGET_FILE:rovelle>
+    )
 endif()
 
 foreach(target IN ITEMS rovelle_core rovelle)

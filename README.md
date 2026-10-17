@@ -107,3 +107,7 @@ security ещё не реализованы. План и границы прод
 Функции C API возвращают `rovelle_status_t` из
 `include/rovelle/status.h`. `ROVELLE_OK` означает успех, а
 `rovelle_status_name()` предоставляет стабильное диагностическое имя.
+
+## Лицензия
+
+Rovelle распространяется под [Apache License 2.0](LICENSE).

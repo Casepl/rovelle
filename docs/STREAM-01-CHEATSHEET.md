@@ -26,12 +26,16 @@ file -> SHA-256 -> blob -> manifest -> revision -> delivery
 ## Стартовые команды
 
 ```sh
-cd /Users/ssshcherbachenko/Documents/Codex/2026-09-28/f/rovelle
-cmake -S . -B build
-cmake --build build
+cd /path/to/rovelle
+./tools/stream-cmake -S . -B build
+./tools/stream-cmake --build build
 ./build/rovelle --help
 ./build/rovelle version
 ```
+
+На стриме использовать `./tools/stream-cmake` вместо прямого вызова `cmake`.
+Обертка скрывает имя пользователя и локальный путь проекта в выводе CMake и
+компилятора. Обычные команды CMake остаются доступны для работы вне эфира.
 
 ## План кода
 

@@ -21,20 +21,20 @@ source_file=$test_directory/source.txt
 restored_file=$test_directory/restored.txt
 printf 'Rovelle CAS smoke test\nsecond line\n' >"$source_file"
 
-hash=$($rovelle blob put "$store" "$source_file")
+hash=$("$rovelle" blob put "$store" "$source_file")
 
 if [ "${#hash}" -ne 64 ]; then
     echo "blob put returned an invalid SHA-256: $hash" >&2
     exit 1
 fi
 
-$rovelle blob get "$store" "$hash" "$restored_file"
+"$rovelle" blob get "$store" "$hash" "$restored_file"
 if ! cmp -s "$source_file" "$restored_file"; then
     echo "blob get did not restore the original content" >&2
     exit 1
 fi
 
-duplicate_hash=$($rovelle blob put "$store" "$source_file")
+duplicate_hash=$("$rovelle" blob put "$store" "$source_file")
 if [ "$duplicate_hash" != "$hash" ]; then
     echo "repeated blob put returned a different hash" >&2
     exit 1
@@ -47,7 +47,7 @@ expect_invalid_hash_rejected()
     destination=$test_directory/invalid-$label.txt
     error_output=$test_directory/invalid-$label.err
 
-    if $rovelle blob get "$store" "$invalid_hash" "$destination" \
+    if "$rovelle" blob get "$store" "$invalid_hash" "$destination" \
         >"$test_directory/invalid-$label.out" 2>"$error_output"; then
         echo "blob get accepted $label hash: $invalid_hash" >&2
         exit 1
@@ -74,7 +74,7 @@ printf 'do not replace this destination\n' >"$sentinel_file"
 cp "$sentinel_file" "$sentinel_copy"
 corrupt_error=$test_directory/corrupt.err
 
-if $rovelle blob get "$store" "$hash" "$sentinel_file" \
+if "$rovelle" blob get "$store" "$hash" "$sentinel_file" \
     >"$test_directory/corrupt.out" 2>"$corrupt_error"; then
     echo "blob get accepted a corrupted stored object" >&2
     exit 1

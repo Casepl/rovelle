@@ -100,6 +100,8 @@ source -> build -> CAS -> release -> prepare -> activate -> health -> rollback
 - `docs/ARCHITECTURE.md` — целевая архитектура;
 - `docs/DECISIONS.md` — реестр принятых решений;
 - `docs/ROADMAP.md` — последовательность вертикальных срезов;
+- `GLOSSARY.md` — общий язык для источников, гипотез, evidence и решений;
+- `docs/research/` — входящие материалы, проверяемые утверждения и эксперименты;
 - `docs/STREAM-*.md` — учебные материалы, runbooks и ретроспективы.
 
 ## Статус

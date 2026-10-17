@@ -243,48 +243,22 @@ rollback.
 - документация миграций;
 - проверенная эксплуатационная модель.
 
-## Первая задача
+## Следующая задача
 
-Первая самостоятельная задача — `RVL-001: content-addressed blob`.
+`blob put` и безопасный `blob get` готовы. Следующий шаг — объединить несколько
+blobs в неизменяемую ревизию:
 
-Нужно добавить:
+- подробный ticket: [STREAM-04-JUNIOR-TASK.md](STREAM-04-JUNIOR-TASK.md);
+- сценарий эфира: [STREAM-04-RUNBOOK.md](STREAM-04-RUNBOOK.md);
+- короткая шпаргалка: [STREAM-04-CHEATSHEET.md](STREAM-04-CHEATSHEET.md);
+- подготовка OBS и рабочего места: [STREAM-04-PREP.md](STREAM-04-PREP.md).
 
-```text
-include/rovelle/blob.h
-src/blob.c
-```
-
-И расширить:
-
-```text
-cli/main.c
-CMakeLists.txt
-README.md
-```
-
-Минимальный интерфейс библиотеки:
-
-```c
-rovelle_status_t rovelle_blob_put(
-    const char *store_path,
-    const char *source_path,
-    char out_hash[65]
-);
-
-rovelle_status_t rovelle_blob_get(
-    const char *store_path,
-    const char *hash,
-    const char *destination_path
-);
-```
-
-Команды:
+Результат следующего этапа:
 
 ```text
-rovelle blob put <store> <file>
-rovelle blob get <store> <sha256> <destination>
+blobs + logical paths → canonical manifest → immutable revision id
 ```
 
-Задача готова, когда одинаковые файлы получают одинаковый хеш, повторный
-`put` безопасен, повреждённый blob обнаруживается, а итоговый файл никогда не
-появляется в store частично записанным.
+После manifest появится стабильная ссылка `current`. Её атомарное переключение
+между двумя ревизиями станет отдельной задачей, чтобы не смешивать публикацию и
+активацию релиза в одном эфире.

@@ -7,44 +7,74 @@
 #include "rovelle/status.h"
 #include "rovelle/version.h"
 
+typedef enum {
+    COMMAND_HELP,
+    COMMAND_VERSION,
+    COMMAND_HASH,
+    COMMAND_BLOB_PUT,
+    COMMAND_BLOB_GET,
+    COMMAND_MANIFEST_PUBLISH
+} command_id_t;
+
+typedef struct {
+    command_id_t id;
+    int argc;
+    const char *name;
+    const char *word1;
+    const char *word2;
+    const char *usage;
+    const char *description;
+} command_t;
+
+static const command_t commands[] = {
+    {COMMAND_HELP, 2, "help", "help", NULL, "help", "Show this help"},
+    {COMMAND_VERSION, 2, "version", "version", NULL, "version",
+     "Print the project version"},
+    {COMMAND_HASH, 3, "hash", "hash", NULL, "hash <file>",
+     "Print the SHA-256 of a file"},
+    {COMMAND_BLOB_PUT, 5, "blob put", "blob", "put",
+     "blob put <store> <file>", "Store a file by its SHA-256"},
+    {COMMAND_BLOB_GET, 6, "blob get", "blob", "get",
+     "blob get <store> <hash> <destination>", "Restore and verify a blob"},
+    {COMMAND_MANIFEST_PUBLISH, 5, "manifest publish", "manifest", "publish",
+     "manifest publish <store> <manifest-file>", "Publish manifest"}
+};
+
+static const size_t command_count = sizeof(commands) / sizeof(commands[0]);
+
+static const command_t *find_command(int argc, char **argv)
+{
+    for (size_t index = 0; index < command_count; ++index) {
+        const command_t *command = &commands[index];
+
+        if (argc == command->argc &&
+            strcmp(argv[1], command->word1) == 0 &&
+            (command->word2 == NULL || strcmp(argv[2], command->word2) == 0)) {
+            return command;
+        }
+    }
+
+    return NULL;
+}
+
 static void print_help(FILE *stream)
 {
     fputs("Usage:\n", stream);
-    fputs("  rovelle help\n", stream);
-    fputs("  rovelle version\n", stream);
-    fputs("  rovelle hash <file>\n", stream);
-    fputs("  rovelle blob put <store> <file>\n", stream);
-    fputs("  rovelle blob get <store> <hash> <destination>\n", stream);
-    fputs(
-        "  rovelle manifest publish <store> <manifest-file>\n\n",
-        stream
-    );
 
-    fputs("Commands:\n", stream);
-    fputs(
-        "  help                                      Show this help\n",
-        stream
-    );
-    fputs(
-        "  version                                   Print the project version\n",
-        stream
-    );
-    fputs(
-        "  hash <file>                               Print the SHA-256 of a file\n",
-        stream
-    );
-    fputs(
-        "  blob put <store> <file>                   Store a file by its SHA-256\n",
-        stream
-    );
-    fputs(
-        "  blob get <store> <hash> <destination>     Restore and verify a blob\n",
-        stream
-    );
-    fputs(
-        "  manifest publish <store> <manifest-file>  Publish manifest\n",
-        stream
-    );
+    for (size_t index = 0; index < command_count; ++index) {
+        fprintf(stream, "  rovelle %s\n", commands[index].usage);
+    }
+
+    fputs("\nCommands:\n", stream);
+
+    for (size_t index = 0; index < command_count; ++index) {
+        fprintf(
+            stream,
+            "  %-41s %s\n",
+            commands[index].usage,
+            commands[index].description
+        );
+    }
 }
 
 static int is_command_help(int argc, char **argv)
@@ -53,19 +83,25 @@ static int is_command_help(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 3) {
-        return strcmp(argv[1], "version") == 0 ||
-               strcmp(argv[1], "hash") == 0;
+    for (size_t index = 0; index < command_count; ++index) {
+        const command_t *command = &commands[index];
+        int help_argc = command->word2 == NULL ? 3 : 4;
+
+        if (argc == help_argc &&
+            strcmp(argv[1], command->word1) == 0 &&
+            (command->word2 == NULL || strcmp(argv[2], command->word2) == 0)) {
+            return 1;
+        }
     }
 
-    if (argc == 4 && strcmp(argv[1], "blob") == 0) {
-        return strcmp(argv[2], "put") == 0 ||
-               strcmp(argv[2], "get") == 0;
-    }
+    return 0;
+}
 
-    return argc == 4 &&
-           strcmp(argv[1], "manifest") == 0 &&
-           strcmp(argv[2], "publish") == 0;
+static void print_command_inventory(void)
+{
+    for (size_t index = 0; index < command_count; ++index) {
+        puts(commands[index].name);
+    }
 }
 
 int main(int argc, char **argv)
@@ -80,21 +116,40 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 2 &&
-        (strcmp(argv[1], "help") == 0 ||
-         strcmp(argv[1], "--help") == 0)) {
+    if (argc == 2 && strcmp(argv[1], "--commands") == 0) {
+        print_command_inventory();
+        return 0;
+    }
+
+    if (argc == 2 && strcmp(argv[1], "--help") == 0) {
         print_help(stdout);
         return 0;
     }
 
-    if (argc == 2 &&
-        (strcmp(argv[1], "version") == 0 ||
-         strcmp(argv[1], "--version") == 0)) {
+    if (argc == 2 && strcmp(argv[1], "--version") == 0) {
         printf("rovelle %s\n", rovelle_version());
         return 0;
     }
 
-    if (argc == 3 && strcmp(argv[1], "hash") == 0) {
+    const command_t *command = find_command(argc, argv);
+
+    if (command == NULL) {
+        fprintf(stderr, "Unknown command or invalid arguments.\n\n");
+        print_help(stderr);
+        return 2;
+    }
+
+    if (command->id == COMMAND_HELP) {
+        print_help(stdout);
+        return 0;
+    }
+
+    if (command->id == COMMAND_VERSION) {
+        printf("rovelle %s\n", rovelle_version());
+        return 0;
+    }
+
+    if (command->id == COMMAND_HASH) {
         char hash[ROVELLE_SHA256_HEX_SIZE];
 
         rovelle_status_t status =
@@ -114,9 +169,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 5 &&
-        strcmp(argv[1], "blob") == 0 &&
-        strcmp(argv[2], "put") == 0) {
+    if (command->id == COMMAND_BLOB_PUT) {
         const char *store_path = argv[3];
         const char *source_path = argv[4];
 
@@ -142,9 +195,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 6 &&
-        strcmp(argv[1], "blob") == 0 &&
-        strcmp(argv[2], "get") == 0) {
+    if (command->id == COMMAND_BLOB_GET) {
         const char *store_path = argv[3];
         const char *hash = argv[4];
         const char *destination_path = argv[5];
@@ -167,9 +218,7 @@ int main(int argc, char **argv)
 
         return 0;
     }
-    if (argc == 5 &&
-        strcmp(argv[1], "manifest") == 0 &&
-        strcmp(argv[2], "publish") == 0) {
+    if (command->id == COMMAND_MANIFEST_PUBLISH) {
         char revision[ROVELLE_SHA256_HEX_SIZE];
         const char *store_path = argv[3];
         const char *manifest_path = argv[4];
@@ -194,11 +243,5 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    fprintf(
-        stderr,
-        "Unknown command or invalid arguments.\n\n"
-    );
-
-    print_help(stderr);
     return 2;
 }

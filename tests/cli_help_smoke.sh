@@ -17,7 +17,7 @@ test_directory=$(mktemp -d "${TMPDIR:-/tmp}/rovelle-cli-help.XXXXXX")
 trap 'rm -rf "$test_directory"' EXIT HUP INT TERM
 
 root_help=$test_directory/root-help.txt
-if ! "$rovelle" --help >"$root_help" 2>&1; then
+if ! (cd "$test_directory" && "$rovelle" --help >"$root_help" 2>&1); then
     echo "help command failed: rovelle --help" >&2
     cat "$root_help" >&2
     exit 1
@@ -55,6 +55,22 @@ blob get
 manifest publish
 EOF
 
+dispatchable_commands=$test_directory/dispatchable-commands.txt
+if ! (cd "$test_directory" && "$rovelle" --commands >"$dispatchable_commands" 2>&1); then
+    echo "command inventory failed: rovelle --commands" >&2
+    cat "$dispatchable_commands" >&2
+    exit 1
+fi
+
+if ! cmp -s "$dispatchable_commands" "$commands"; then
+    echo "dispatchable command inventory differs from root help" >&2
+    echo "Dispatchable:" >&2
+    cat "$dispatchable_commands" >&2
+    echo "Root help:" >&2
+    cat "$commands" >&2
+    exit 1
+fi
+
 if ! cmp -s "$expected_commands" "$commands"; then
     echo "root help command inventory changed" >&2
     echo "Expected:" >&2
@@ -69,12 +85,12 @@ while IFS= read -r command; do
     set -- $command
 
     if [ "$command" = "help" ]; then
-        if ! "$rovelle" "$@" >"$output" 2>&1; then
+        if ! (cd "$test_directory" && "$rovelle" "$@" >"$output" 2>&1); then
             echo "help command failed: rovelle $command" >&2
             cat "$output" >&2
             exit 1
         fi
-    elif ! "$rovelle" "$@" --help >"$output" 2>&1; then
+    elif ! (cd "$test_directory" && "$rovelle" "$@" --help >"$output" 2>&1); then
         echo "help command failed: rovelle $command --help" >&2
         cat "$output" >&2
         exit 1

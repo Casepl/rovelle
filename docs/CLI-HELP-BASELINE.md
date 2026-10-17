@@ -28,9 +28,10 @@ The automated `cli_help_smoke` test checks these invocations:
 ```
 
 Each invocation must exit with status 0 and print a case-insensitive `Usage:`
-marker. The command inventory is read from the root help and compared with the
-expected baseline, so adding or removing an advertised command requires an
-intentional test update.
+marker. The command inventory is read independently from the dispatch table
+and root help, then both are compared with the expected baseline. Adding a
+dispatchable command without advertising it therefore fails the test, and any
+inventory change requires an intentional baseline update.
 
 ## Isolation and portability
 

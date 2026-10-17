@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 
 project(rovelle VERSION 0.1.0 LANGUAGES C)
 
+include(CTest)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_STANDARD 17)
@@ -31,6 +33,14 @@ target_compile_definitions(rovelle_core PRIVATE
 
 add_executable(rovelle cli/main.c)
 target_link_libraries(rovelle PRIVATE rovelle_core)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME cli_help_smoke
+        COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_help_smoke.sh
+                   $<TARGET_FILE:rovelle>
+    )
+endif()
 
 foreach(target IN ITEMS rovelle_core rovelle)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")

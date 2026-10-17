@@ -47,9 +47,35 @@ static void print_help(FILE *stream)
     );
 }
 
+static int is_command_help(int argc, char **argv)
+{
+    if (strcmp(argv[argc - 1], "--help") != 0) {
+        return 0;
+    }
+
+    if (argc == 3) {
+        return strcmp(argv[1], "version") == 0 ||
+               strcmp(argv[1], "hash") == 0;
+    }
+
+    if (argc == 4 && strcmp(argv[1], "blob") == 0) {
+        return strcmp(argv[2], "put") == 0 ||
+               strcmp(argv[2], "get") == 0;
+    }
+
+    return argc == 4 &&
+           strcmp(argv[1], "manifest") == 0 &&
+           strcmp(argv[2], "publish") == 0;
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 1) {
+        print_help(stdout);
+        return 0;
+    }
+
+    if (is_command_help(argc, argv)) {
         print_help(stdout);
         return 0;
     }

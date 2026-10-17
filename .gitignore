@@ -4,3 +4,8 @@
 /artifacts/
 *.o
 .DS_Store
+
+# MAIster materialized capability bundle — never tracked or promoted
+/.claude/
+/.gitignore
+/.ai-factory/config.yaml

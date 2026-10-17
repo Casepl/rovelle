@@ -33,11 +33,17 @@ Rovelle исследует полный путь программного арт
 ```sh
 cmake -S . -B build
 cmake --build build
+ctest --test-dir build --output-on-failure
 
 ./build/rovelle --help
 ./build/rovelle version
 ./build/rovelle hash README.md
 ```
+
+Корневая справка доступна через `rovelle --help` и `rovelle help`. Для каждой
+команды из блока `Usage:` поддерживается форма `<command> --help`, включая
+вложенные команды, например `rovelle blob put --help`. Smoke-тест CTest
+проверяет весь список из `Usage:` в изолированном временном каталоге.
 
 Пример локального CAS:
 

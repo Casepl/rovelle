@@ -13,6 +13,8 @@ const char *rovelle_status_name(rovelle_status_t status)
         return "ROVELLE_IO_ERROR";
     case ROVELLE_INVALID_ARGUMENT:
         return "ROVELLE_INVALID_ARGUMENT";
+    case ROVELLE_CORRUPT:
+        return "ROVELLE_CORRUPT";
     default:
         return "ROVELLE_UNKNOWN_STATUS";
     }

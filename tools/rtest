@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Run all configured tests from the build directory with stream-safe output.
+
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+project_dir=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+cd "$project_dir"
+
+"$script_dir/stream-ctest" \
+    --test-dir build \
+    --output-on-failure \
+    "$@"

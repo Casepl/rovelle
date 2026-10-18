@@ -11,4 +11,6 @@ rovelle_status_t rovelle_hash_file(
     char out_hex[ROVELLE_SHA256_HEX_SIZE]
 );
 
+int rovelle_hash_is_valid(const char *hash);
+
 #endif

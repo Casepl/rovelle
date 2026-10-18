@@ -1,5 +1,6 @@
 #include <openssl/evp.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "rovelle/hash.h"
 
@@ -94,4 +95,27 @@ cleanup:
     }
 
     return status;
+}
+
+int rovelle_hash_is_valid(const char hash[ROVELLE_SHA256_HEX_SIZE])
+{
+    if (hash == NULL) {
+        return 0;
+    }
+
+    if (strlen(hash) != ROVELLE_SHA256_HEX_LENGTH) {
+        return 0;
+    }
+
+    for (size_t i = 0; i < ROVELLE_SHA256_HEX_LENGTH; i++) {
+        char symbol = hash[i];
+        int is_digit = symbol >= '0' && symbol <= '9';
+        int is_lowercase_hex = symbol >= 'a' && symbol <= 'f';
+
+        if (is_digit == 0 && is_lowercase_hex == 0) {
+            return 0;
+        }
+    }
+
+    return 1;
 }

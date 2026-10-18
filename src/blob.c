@@ -7,31 +7,9 @@
 #include <unistd.h>
 
 #include "rovelle/blob.h"
+#include "rovelle/hash.h"
 
 #define ROVELLE_PATH_SIZE 4096
-
-static int is_valid_hash(const char hash[ROVELLE_SHA256_HEX_SIZE])
-{
-    if (hash == NULL) {
-        return 0;
-    }
-
-    if (strlen(hash) != ROVELLE_SHA256_HEX_LENGTH) {
-        return 0;
-    }
-
-    for (size_t i = 0; i < ROVELLE_SHA256_HEX_LENGTH; i++) {
-        char symbol = hash[i];
-        int is_digit = symbol >= '0' && symbol <= '9';
-        int is_lowercase_hex = symbol >= 'a' && symbol <= 'f';
-
-        if (is_digit == 0 && is_lowercase_hex == 0) {
-            return 0;
-        }
-    }
-
-    return 1;
-}
 
 static rovelle_status_t ensure_directory(const char *path)
 {
@@ -375,7 +353,7 @@ rovelle_status_t rovelle_blob_get(
 
     if (store_path == NULL ||
         destination_path == NULL ||
-        is_valid_hash(hash) == 0) {
+        rovelle_hash_is_valid(hash) == 0) {
         return ROVELLE_INVALID_ARGUMENT;
     }
 

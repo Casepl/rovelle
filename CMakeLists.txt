@@ -34,6 +34,11 @@ target_compile_definitions(rovelle_core PRIVATE
 add_executable(rovelle cli/main.c)
 target_link_libraries(rovelle PRIVATE rovelle_core)
 
+set(ROVELLE_COMPILE_TARGETS
+    rovelle_core
+    rovelle
+)
+
 if(BUILD_TESTING)
     add_test(
         NAME cli_help_smoke
@@ -45,9 +50,27 @@ if(BUILD_TESTING)
         COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/cas_smoke.sh
                    $<TARGET_FILE:rovelle>
     )
+    add_executable(
+        hash_validation_test
+        tests/hash_validation_test.c
+    )
+    target_link_libraries(
+        hash_validation_test
+        PRIVATE rovelle_core
+    )
+
+    add_test(
+        NAME hash_validation
+        COMMAND hash_validation_test
+    )
+
+    list(
+        APPEND ROVELLE_COMPILE_TARGETS
+        hash_validation_test
+    )
 endif()
 
-foreach(target IN ITEMS rovelle_core rovelle)
+foreach(target IN LISTS ROVELLE_COMPILE_TARGETS)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
         target_compile_options(${target} PRIVATE
             -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Werror

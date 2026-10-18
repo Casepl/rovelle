@@ -1,5 +1,6 @@
 /build/
 /build]/
+/Testing/
 /tmp/
 /artifacts/
 *.o

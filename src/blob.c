@@ -8,6 +8,7 @@
 
 #include "rovelle/blob.h"
 #include "rovelle/hash.h"
+#include "rovelle/status.h"
 
 #define ROVELLE_PATH_SIZE 4096
 
@@ -487,6 +488,47 @@ cleanup:
             status == ROVELLE_OK) {
             status = ROVELLE_IO_ERROR;
         }
+    }
+
+    return status;
+}
+
+rovelle_status_t rovelle_blob_verify(
+    const char *store_path,
+    const char hash[ROVELLE_SHA256_HEX_SIZE]
+)
+{
+    char blob_path[ROVELLE_PATH_SIZE];
+    char actual_hash[ROVELLE_SHA256_HEX_SIZE];
+
+    rovelle_status_t status = ROVELLE_OK;
+
+    if (store_path == NULL ||
+        rovelle_hash_is_valid(hash) == 0) {
+        return ROVELLE_INVALID_ARGUMENT;
+    }
+
+    status = format_blob_path(
+        store_path,
+        hash,
+        blob_path,
+        sizeof(blob_path)
+    );
+
+    if (status != ROVELLE_OK) {
+        return status;
+    }
+
+    status = rovelle_hash_file(blob_path, actual_hash);
+
+    if (status != ROVELLE_OK) {
+        return status;
+    }
+
+    int hash_comparison = strcmp(hash, actual_hash);
+
+    if (hash_comparison != 0) {
+        status = ROVELLE_CORRUPT;
     }
 
     return status;

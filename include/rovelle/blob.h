@@ -16,4 +16,9 @@ rovelle_status_t rovelle_blob_get(
     const char *destination_path
 );
 
+rovelle_status_t rovelle_blob_verify(
+    const char *store_path,
+    const char hash[ROVELLE_SHA256_HEX_SIZE]
+);
+
 #endif

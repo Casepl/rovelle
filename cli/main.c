@@ -13,7 +13,8 @@ typedef enum {
     COMMAND_HASH,
     COMMAND_BLOB_PUT,
     COMMAND_BLOB_GET,
-    COMMAND_MANIFEST_PUBLISH
+    COMMAND_MANIFEST_PUBLISH,
+    COMMAND_MANIFEST_RESTORE
 } command_id_t;
 
 typedef struct {
@@ -37,7 +38,9 @@ static const command_t commands[] = {
     {COMMAND_BLOB_GET, 6, "blob get", "blob", "get",
      "blob get <store> <hash> <destination>", "Restore and verify a blob"},
     {COMMAND_MANIFEST_PUBLISH, 5, "manifest publish", "manifest", "publish",
-     "manifest publish <store> <manifest-file>", "Publish manifest"}
+     "manifest publish <store> <manifest-file>", "Publish manifest"},
+    {COMMAND_MANIFEST_RESTORE, 6, "manifest restore", "manifest", "restore",
+     "manifest restore <store> <revision> <destination>", "Restore a release by revision"}
 };
 
 static const size_t command_count = sizeof(commands) / sizeof(commands[0]);
@@ -240,6 +243,25 @@ int main(int argc, char **argv)
         }
 
         printf("%s\n", revision);
+        return 0;
+    }
+
+    if(command->id == COMMAND_MANIFEST_RESTORE) {
+        rovelle_status_t status = rovelle_manifest_restore(
+                argv[3],
+                argv[4],
+                argv[5]
+            );
+
+        if (status != ROVELLE_OK) {
+                fprintf(
+                    stderr,
+                    "manifest restore failed: %s\n",
+                    rovelle_status_name(status)
+                );
+                return 1;
+        }
+
         return 0;
     }
 

@@ -10,4 +10,10 @@ rovelle_status_t rovelle_manifest_publish(
     char out_revision[ROVELLE_SHA256_HEX_SIZE]
 );
 
+rovelle_status_t rovelle_manifest_restore(
+    const char *store_path,
+    const char revision[ROVELLE_SHA256_HEX_SIZE],
+    const char *destination_path
+);
+
 #endif

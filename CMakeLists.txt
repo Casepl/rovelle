@@ -55,6 +55,11 @@ if(BUILD_TESTING)
         COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/manifest_verify_smoke.sh
                    $<TARGET_FILE:rovelle>
     )
+    add_test(
+        NAME manifest_restore_smoke
+        COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/tests/manifest_restore_smoke.sh
+                   $<TARGET_FILE:rovelle>
+    )
     add_executable(
         hash_validation_test
         tests/hash_validation_test.c

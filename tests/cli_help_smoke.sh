@@ -53,6 +53,7 @@ hash
 blob put
 blob get
 manifest publish
+manifest restore
 EOF
 
 dispatchable_commands=$test_directory/dispatchable-commands.txt
